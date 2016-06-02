@@ -80,6 +80,11 @@ for (var route of routes) {
         url = paths.join('/');
     }
     if (['post', 'get', 'put', 'del'].indexOf(method) !== -1) {
+        var t = url.split('/');
+        if (t[t.length - 1] === method) {
+            t.pop();
+            url = t.join('/');
+        }
     } else {
         url += '/' + method;
         method = 'get';

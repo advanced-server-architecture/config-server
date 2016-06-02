@@ -22,10 +22,17 @@ module.exports = {
         }
     },
     publish(channelKey, doc) {
-        var channel = websocketList[channelKey];
+        var channel = websocketList[channelKey] || [];
         for (var id in channel) {
             channel[id].emit('change', doc);
             logger.debug('[Websocket] publish to channel "' + channelKey + '", id: ' + id);
+        }
+    },
+    deploy(git) {
+        var channel = websocketList['repo:' + git.name] || [];
+        for (var id in channel) {
+            channel[id].emit('deploy', git);
+            logger.debug('[Websocket] Deployed "' + git.name + '" to id: ' + id);
         }
     }
 };
