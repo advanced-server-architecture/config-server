@@ -1,0 +1,32 @@
+{
+  "name": "config-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hitales/slb-app-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hitales/slb-app-server/issues"
+  },
+  "homepage": "https://github.com/hitales/slb-app-server#readme",
+  "dependencies": {
+    "app-module-path": "^1.0.6",
+    "co": "^4.6.0",
+    "deep-diff": "^0.3.4",
+    "joi": "^8.1.0",
+    "koa": "^1.2.0",
+    "koa-bodyparser": "^2.2.0",
+    "koa-router": "^5.4.0",
+    "lodash": "^4.13.1",
+    "log4js": "^0.6.36",
+    "mongoose": "^4.4.19",
+    "socket.io": "^1.4.6"
+  }
+}
