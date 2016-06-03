@@ -133,9 +133,7 @@ module.exports = [
             file.text = body.content;
         }
         yield file.save();
-        if (_id) {
-            notifier.publish(file.name, file);
-        }
+        notifier.publish(file.name, file);
         this.resolve(file.toObject());
     }
 ];
