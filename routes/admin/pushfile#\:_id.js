@@ -14,7 +14,7 @@ module.exports = [
     }),
     function* (next) {
         var _id = this.params._id;
-        var file = yield File.find({ _id, active: true });
+        var file = yield File.findOne({ _id, active: true });
         if (!file) throw new Exception(404);
         notifier.publish(file.name, file);
         this.resolve([]);
