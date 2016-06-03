@@ -33,10 +33,10 @@ module.exports = [
         }
         git.name = body.name;
         git.accessToken = body.accessToken;
-        git.username = git.username;
+        git.username = body.username;
         git.repo = body.repo;
         git.path = body.path;
-        git.command = body.command;
+        git.command = body.command || '';
         yield git.save();
         this.resolve(git);
     }
