@@ -26,6 +26,7 @@
     "koa-router": "^5.4.0",
     "lodash": "^4.13.1",
     "log4js": "^0.6.36",
+    "log4js-logstash": "^0.2.2",
     "mongoose": "^4.4.19",
     "socket.io": "^1.4.6"
   }

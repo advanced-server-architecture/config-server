@@ -95,7 +95,7 @@ for (var route of routes) {
         query = query.replace(/\\/g,'/');
         url = url + query;
     }
-    logger.info('  ', method, url);
+    logger.info('  ' + method + ' ' + url);
     router[method](url, ...r);
     
 }
