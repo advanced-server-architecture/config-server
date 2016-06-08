@@ -5,7 +5,11 @@ module.exports = new Schema({
     accessToken: String,
     repo: String,
     command: String,
-    deployedCommit: String,
-    path: String,
-    username: String
-}, {collection: 'Git'});
+    username: String,
+    status: String,
+    commit: String,
+    main: String
+}, {
+    collection: 'Git',
+    timestamps: true
+});

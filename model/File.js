@@ -13,6 +13,8 @@ module.exports = new Schema({
     }],
     text: String,
     active: Boolean,
-    ref: String,
-    createTime: Date
-}, {collection: 'File'});
+    ref: String
+}, {
+    collection: 'File',
+    timestamps: true
+});

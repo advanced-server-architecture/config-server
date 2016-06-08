@@ -1,9 +1,10 @@
-var joi = require('util/joi');
-var queryValidator = require('middleware/queryValidator');
-var Exception = require('util/exception');
-var tree = require('util/tree');
-var File = require('runtime/db').File;
-var notifier = require('runtime/notifier');
+'use stirct';
+const joi = require('util/joi');
+const queryValidator = require('middleware/queryValidator');
+const Exception = require('util/exception');
+const tree = require('util/tree');
+const File = require('runtime/db').File;
+const notifier = require('runtime/notifier');
 
 
 module.exports = [
@@ -13,10 +14,10 @@ module.exports = [
         })
     }),
     function* (next) {
-        var _id = this.params._id;
-        var file = yield File.findOne({ _id, active: true });
+        const _id = this.params._id;
+        const file = yield File.findOne({ _id, active: true });
         if (!file) throw new Exception(404);
-        notifier.publish(file.name, file);
+        //notifier.publish(file.name, file);
         this.resolve([]);
     }
 ];

@@ -108,14 +108,12 @@ module.exports = [
             file = new File();
             file.active = true;
             file.ref = ref;
-            file.createTime = new Date();
         } else { // new
             file = yield File.findOne({ name: body.name }).exec();
             if (file) throw new Exception(421);
             file = new File();
             file.active = true;
             file.ref = new mongoose.Types.ObjectId();
-            file.createTime = new Date();
         }
         file.path = body.path;
         file.type = body.type;

@@ -15,8 +15,8 @@ module.exports = [
             accessToken: joi.string().required(),
             repo: joi.string().required(),
             command: joi.string().allow(''),
-            path: joi.string().required(),
-            username: joi.string().required()
+            username: joi.string().required(),
+            main: joi.string().required()
         })
     }),
     function* (next) {
@@ -33,9 +33,9 @@ module.exports = [
         }
         git.name = body.name;
         git.accessToken = body.accessToken;
+        git.main = body.main;
         git.username = body.username;
         git.repo = body.repo;
-        git.path = body.path;
         git.command = body.command || '';
         yield git.save();
         this.resolve(git);

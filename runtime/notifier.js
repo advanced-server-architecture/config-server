@@ -1,38 +1,65 @@
-var EventEmitter = require('events');
+'use strict';
+
+let EventEmitter = require('events');
 EventEmitter = EventEmitter.EventEmitter || EventEmitter;
-var logger = require('runtime/logger');
+const logger = require('runtime/logger');
+const emitter = new EventEmitter();
 
-var emitter = new EventEmitter();
-
-var websocketList = {};
+let clients = {};
 
 module.exports = {
-    addWebsocket(channel, conn) {
-        var id = conn.id;
-        websocketList[channel] = websocketList[channel] || {};
-        websocketList[channel][id] = conn;
-        logger.debug('[Websocket] ' + conn.id + ' subscribed to channel "' + channel + '"');
+    online(conn, config) {
+        conn.uid = config.uid;
+        const uid = config.uid;
+        clients[uid] = clients[uid] || {};
+        clients[uid].online = true;
+        clients[uid].lastOnline = Date.now();
+        clients[uid].conn = conn;
+        clients[uid].ip = conn.handshake.address
+        clients[uid].name = config.name;
+        conn.on('return', (id, result) => {
+            emitter.emit(id ,result);
+        });
     },
-    removeWebsocket(id) {
-        for (var channelKey in websocketList) {
-            if (websocketList[channelKey][id]) {
-                delete websocketList[channelKey][id];
-                logger.debug('[Websocket] ' + id + ' exited channel "' + channelKey + '"');
+    offline(uid) {
+        if (clients[uid]) {
+            clients[uid].online = false;
+            clients[uid].lastOnline = Date.now();
+        }
+    },
+    emit(uid, command, params) {
+        if (clients[uid] && clients[uid].online) {
+            clients[uid].conn.emit('command', command, params);
+            let p = JSON.stringify(params, 0, 2);
+            p = p.substr(0, Math.min(p.length, 20));
+            logger.debug(`Command(${uid}): ${command} ${p}`);
+        }
+    },
+    list() {
+        let result = [];
+        for (const uid in clients) {
+            const c = clients[uid];
+            result.push({
+                uid,
+                online: c.online,
+                lastOnline: c.lastOnline,
+                name: c.name,
+                ip: c.ip
+            });
+        }
+        return result;
+    },
+    get(uid, type, params){
+        return new Promise((resolve, reject) => {
+            if (clients[uid]) {
+                const id = Date.now();
+                emitter.once(id, result => {
+                    resolve(result);
+                });
+                clients[uid].conn.emit('get', id, uid, type, params);
+            } else {
+                reject(new Error(`uid ${uid} not found`));
             }
-        }
-    },
-    publish(channelKey, doc) {
-        var channel = websocketList[channelKey] || [];
-        for (var id in channel) {
-            channel[id].emit('change', doc);
-            logger.debug('[Websocket] publish to channel "' + channelKey + '", id: ' + id);
-        }
-    },
-    deploy(git) {
-        var channel = websocketList['repo:' + git.name] || [];
-        for (var id in channel) {
-            channel[id].emit('deploy', git);
-            logger.debug('[Websocket] Deployed "' + git.name + '" to id: ' + id);
-        }
+        });
     }
 };

@@ -1,5 +1,6 @@
-var log4js = require('log4js');
-var config = require('config')
+'use strict';
+const log4js = require('log4js');
+const config = require('config')
 
 log4js.configure({
     appenders: [{
@@ -18,7 +19,7 @@ log4js.configure({
 });
 
 
-var logger = config.ENV === 'dev' ?
+const logger = config.ENV === 'dev' ?
     log4js.getLogger('console') :
     log4js.getLogger('config-server');
 
