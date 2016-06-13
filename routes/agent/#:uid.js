@@ -1,9 +1,9 @@
 'use strict';
-const config = require('config');
 const notifier = require('runtime/notifier');
 const joi = require('util/joi');
 const queryValidator = require('middleware/queryValidator');
 const Exception = require('util/exception');
+const _ = require('lodash');
 
 module.exports = [
     queryValidator({
@@ -12,14 +12,11 @@ module.exports = [
         })
     }),
     function* () {
-        const uid = this.params.uid;
-        try {
-            let info = yield notifier.get(uid, 'memory');
-            info.uid = uid;
-            this.resolve(info);
-        } catch(e) {
+        const list = yield notifier.list();
+        const info = _.find(list, { uid: this.params.uid });
+        if (!info) {
             throw new Exception(404);
         }
-
+        this.resolve(info);
     }
 ];

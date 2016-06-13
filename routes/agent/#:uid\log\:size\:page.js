@@ -8,14 +8,18 @@ const Exception = require('util/exception');
 module.exports = [
     queryValidator({
         params: joi.object({
-            uid: joi.string().required()
+            uid: joi.string().required(),
+            size: joi.number().integer().min(1).required(),
+            page: joi.number().integer().min(0).required(),
         })
     }),
     function* () {
         const uid = this.params.uid;
         try {
-            let info = yield notifier.get(uid, 'memory');
-            info.uid = uid;
+            const info = yield notifier.get(uid, 'log', {
+                size: this.params.size,
+                page: this.params.page,
+            });
             this.resolve(info);
         } catch(e) {
             throw new Exception(404);

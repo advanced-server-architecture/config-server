@@ -52,11 +52,15 @@ module.exports = {
     get(uid, type, params){
         return new Promise((resolve, reject) => {
             if (clients[uid]) {
-                const id = Date.now();
-                emitter.once(id, result => {
-                    resolve(result);
-                });
-                clients[uid].conn.emit('get', id, uid, type, params);
+                if (clients[uid].online) {
+                    const id = Date.now();
+                    emitter.once(id, result => {
+                        resolve(result);
+                    });
+                    clients[uid].conn.emit('get', id, uid, type, params);
+                } else {
+                    resolve([]);
+                }
             } else {
                 reject(new Error(`uid ${uid} not found`));
             }
