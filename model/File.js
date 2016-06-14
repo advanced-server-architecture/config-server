@@ -1,20 +1,13 @@
-var Schema = require('mongoose').Schema;
+'use strict';
+const Schema = require('mongoose').Schema;
 
 module.exports = new Schema({
     name: String,
-    path: String,
-    type: String,
-    commands: [String],
-    json: [{
-        name: String,
-        valueType: String,
-        children: [Number],
-        value: String
-    }],
-    text: String,
-    active: Boolean,
-    ref: String
+    content: String,
+    ref: String,
+    from: Schema.Types.ObjectId,
+    createdAt: Date,
+    updatedAt: Date
 }, {
-    collection: 'File',
-    timestamps: true
+    collection: 'File'
 });
