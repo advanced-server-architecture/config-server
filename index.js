@@ -75,9 +75,11 @@ for (var route of routes) {
     var name = paths[paths.length - 1].split('#');
     var method = name[0];
     var url = route;
+    var rest = '';
     if (name.length > 1) {
         paths.pop();
         url = paths.join('/');
+        rest = '/' + method;
     }
     if (['post', 'get', 'put', 'del'].indexOf(method) !== -1) {
         var t = url.split('/');
@@ -86,7 +88,7 @@ for (var route of routes) {
             url = t.join('/');
         }
     } else {
-        url += '/' + method;
+        url += rest;
         method = 'get';
     }
     var query = name[1];

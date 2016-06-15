@@ -1,0 +1,4 @@
+apps:
+  - name: Config Server
+    node_args: --harmony
+    script: index.js

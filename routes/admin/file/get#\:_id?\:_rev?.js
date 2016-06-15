@@ -1,7 +1,8 @@
-var joi = require('util/joi');
-var queryValidator = require('middleware/queryValidator');
-var File = require('runtime/db').File;
-var Exception = require('util/exception');
+'use strict';
+const joi = require('util/joi');
+const queryValidator = require('middleware/queryValidator');
+const File = require('runtime/db').File;
+const Exception = require('util/exception');
 
 module.exports = [
     queryValidator({
@@ -11,33 +12,48 @@ module.exports = [
         })
     }),
     function* (next) {
-        var ref = this.params._id;
-        var _id = this.params._rev;
+        const ref = this.params._id;
+        const _id = this.params._rev;
         if (ref) {
             if (_id) {
-                var file = yield File.findOne({ ref, _id }).exec();
+                const file = yield File
+                    .findOne({ ref, _id })
+                    .lean()
+                    .exec();
                 if (!file) throw new Exception(404);
-                file = file.toJSON();
-                file.commands = file.commands || [];
                 this.resolve(file);
             } else {
-                var file = yield File.findOne({ ref, active: true }).exec();
-                var history = yield File.find({ ref }).sort('-createTime').select('_id active createTime').exec();
+                const file = yield File
+                        .findOne({ ref })
+                        .sort('-updatedAt')
+                        .lean()
+                        .exec();
+                const history = yield File
+                        .find({ ref })
+                        .lean()
+                        .sort('-updatedAt')
+                        .select('_id createdAt updatedAt')
+                        .exec();
                 if (!file) throw new Exception(404);
-                file = file.toJSON();
-                file.commands = file.commands || [];
                 file.history = history;
                 this.resolve(file);
             }
         } else {
-            var files = yield File.find({ active: true }).exec();
-            files = (files || []).map(f => f.toJSON())
-            files = files.map(f => ({
-                name: f.name,
-                type: f.type,
-                ref: f.ref
-            }));
-            this.resolve(files);
+            const files = yield File
+                .aggregate([{
+                    $sort: {
+                        updatedAt: -1
+                    }
+                }, {
+                    $group: {
+                        _id: '$ref',
+                        doc: {
+                            $first: '$$ROOT'
+                        }
+                    }
+                }])
+                .exec();
+            this.resolve(files.map(file => file.doc));
         }
     }
 ];
