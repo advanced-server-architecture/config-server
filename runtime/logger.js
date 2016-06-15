@@ -8,7 +8,7 @@ log4js.configure({
         type: 'log4js-logstash',
         host: config.LOGSTASH.HOST,
         fields: {
-            application: 'config-server',
+            application: 'config-server-v1',
             environment: config.ENV
         },
         port: config.LOGSTASH.PORT
