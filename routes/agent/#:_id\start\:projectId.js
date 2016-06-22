@@ -3,20 +3,19 @@ const notifier = require('runtime/notifier');
 const joi = require('util/joi');
 const queryValidator = require('middleware/queryValidator');
 const Exception = require('util/exception');
-const _ = require('lodash');
 
 module.exports = [
     queryValidator({
         params: joi.object({
-            uid: joi.string().required()
+            _id: joi.id().required(),
+           projectId: joi.id().required()
         })
     }),
     function* () {
-        const list = yield notifier.list();
-        const info = _.find(list, { uid: this.params.uid });
-        if (!info) {
-            throw new Exception(404);
-        }
-        this.resolve(info);
+        const _id = this.params._id;
+        const projectId = this.params.projectId;
+        this.resolve(
+            yield notifier.call(_id, 'start', projectId)
+        );
     }
 ];

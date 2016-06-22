@@ -1,14 +1,14 @@
+'use strict';
 require('app-module-path/register');
-var fs = require('fs');
-var koa = require('koa');
-var Router = require('koa-router');
-var config = require('config');
-var logger = require('runtime/logger');
-var db = require('runtime/db');
-var co = require('co');
-var _ = require('lodash');
+const koa = require('koa');
+const config = require('config');
+const logger = require('runtime/logger');
+const db = require('runtime/db');
+const co = require('co');
+const _ = require('lodash');
+const routeLoader = require('util/routeLoader');
 
-var app = koa();
+const app = koa();
 
 app.use(function* (next) {
     this.send = (body) => {
@@ -23,11 +23,17 @@ app.use(function* (next) {
         });
     };
     this.reject = (code, message, extra) => {
+        let error = {
+            code, 
+            message
+        };
+
+        if (extra) {
+            error.extra = extra;
+        }
+
         this.send({
-            error: [_.extend({
-                code,
-                message
-            }, extra || {})]
+            error: [error]
         });
     };
     this.set('Access-Control-Allow-Origin', this.headers['origin'] || '');
@@ -52,56 +58,9 @@ app.use(function* (next) {
 });
 
 
-function walk(dir) {
-    var files = fs.readdirSync(dir);
-    var list = [];
-    for (var file of files) {
-        if (fs.statSync(dir + '/' + file).isDirectory()) {
-            list = list.concat(walk(dir + '/' + file));
-        } else {
-            list.push(dir + '/' + file);
-        }
-    }
-    return list;
-}
 
-var routes = walk('./routes');
-routes = routes.map(r => r.substr(8, r.length - 11));
 
-var router = new Router();
-
-for (var route of routes) {
-    var paths = route.split('/');
-    var name = paths[paths.length - 1].split('#');
-    var method = name[0];
-    var url = route;
-    var rest = '';
-    if (name.length > 1) {
-        paths.pop();
-        url = paths.join('/');
-        rest = '/' + method;
-    }
-    if (['post', 'get', 'put', 'del'].indexOf(method) !== -1) {
-        var t = url.split('/');
-        if (t[t.length - 1] === method) {
-            t.pop();
-            url = t.join('/');
-        }
-    } else {
-        url += rest;
-        method = 'get';
-    }
-    var query = name[1];
-    var r = require('./routes/' + route);
-    if (query) {
-        query = query.replace(/\\/g,'/');
-        url = url + query;
-    }
-    logger.info('  ' + method + ' ' + url);
-    router[method](url, ...r);
-    
-}
-
+const router = routeLoader('./routes');
 
 app.use(router.routes());
 app.use(router.allowedMethods());

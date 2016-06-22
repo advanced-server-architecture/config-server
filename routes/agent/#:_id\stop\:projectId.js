@@ -1,5 +1,4 @@
 'use strict';
-const config = require('config');
 const notifier = require('runtime/notifier');
 const joi = require('util/joi');
 const queryValidator = require('middleware/queryValidator');
@@ -8,18 +7,15 @@ const Exception = require('util/exception');
 module.exports = [
     queryValidator({
         params: joi.object({
-            uid: joi.string().required()
+            _id: joi.id().required(),
+           projectId: joi.id().required()
         })
     }),
     function* () {
-        const uid = this.params.uid;
-        try {
-            let info = yield notifier.get(uid, 'ls');
-            info.uid = uid;
-            this.resolve(info);
-        } catch(e) {
-            throw new Exception(404);
-        }
-
+        const _id = this.params._id;
+        const projectId = this.params.projectId;
+        this.resolve(
+            yield notifier.call(_id, 'stop', projectId)
+        );
     }
 ];

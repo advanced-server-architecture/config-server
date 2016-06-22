@@ -9,10 +9,12 @@ const notifier = require('runtime/notifier');
 module.exports = [
     bodyParser(),
     queryValidator({
+        params: joi.object({
+            _id: joi.id().required()
+        }),
         body: joi.object({
-            agentId: joi.string().required(),
             ref: joi.id().required(),
-            id: joi.id().required(),
+            _id: joi.id().required(),
             location: joi.string().required()
         })
     }),
@@ -21,7 +23,7 @@ module.exports = [
         const file = yield File
             .findOne({
                 ref: body.ref,
-                _id: body.id
+                _id: body._id
             })
             .lean()
             .exec();
@@ -29,6 +31,7 @@ module.exports = [
         if (!file) {
             throw new Exception(404);
         }
+
         let location = body.location;
         for (const char of location) {
             if (char === '.' ||
@@ -38,10 +41,12 @@ module.exports = [
                 break;
             }
         }
-        notifier.emit(body.agentId, 'pushfile' , {
-            file,
-            location
-        });
-        this.resolve('OK');
+
+         this.resolve(
+            yield notifier.call(this.params._id, 'push-file', {
+                file,
+                location
+            })
+        );
     }
 ];

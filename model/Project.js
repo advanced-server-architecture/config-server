@@ -9,5 +9,6 @@ module.exports = new Schema({
     main: String
 }, {
     collection: 'Project',
-    timestamps: true
+    timestamps: true,
+    versionKey: false
 });

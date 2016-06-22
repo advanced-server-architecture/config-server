@@ -9,5 +9,6 @@ module.exports = new Schema({
     createdAt: Date,
     updatedAt: Date
 }, {
-    collection: 'File'
+    collection: 'File',
+    versionKey: false
 });
