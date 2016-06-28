@@ -75,6 +75,7 @@ module.exports = {
         yield agent.save();
     },
     call: function* (_id, command, argument) {
+        logger.debug(`Agent#${_id}  ${command}`);
         if (!connectionList[_id]) {
             let agent = yield Agent
                     .findOne({ _id })
